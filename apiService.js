@@ -78,12 +78,14 @@ exports.orderPayment = [
     function(req, res){
         if (req.query.payment_id && req.query.credit_card_number && req.query.credit_card_expiry_date && req.query.credit_card_cvv) {
             var payment_date = moment().format("YYYY-MM-DD"); 
-            var new_status="PAID";
             con.connect(function(err) {
-            con.query("UPDATE main.payment SET credit_card_number="+ req.query.credit_card_number +", credit_card_expiry_date="+ req.query.credit_card_expiry_date +", credit_card_cvv="+ req.query.credit_card_cvv +", payment_status='PAID', payment_date='"+ payment_date +"' WHERE payment_id="+ req.query.payment_id +";", function(err, result, fields) {
-                    if (err) res.send(err);
-                    if (result) res.send({payload: "Payment successful"});
-                    if (fields) console.log(fields);
+                con.query("UPDATE main.payment SET credit_card_number="+ req.query.credit_card_number +", credit_card_expiry_date="+ req.query.credit_card_expiry_date +", credit_card_cvv="+ req.query.credit_card_cvv +", payment_status='PAID', payment_date='"+ payment_date +"' WHERE payment_id="+ req.query.payment_id +";", function(err, result, fields) {
+                        if (err) res.send(err);
+                        if (result) res.send({payload: "Payment successful"});
+                        if (fields) console.log(fields);
+                });
+                con.query("UPDATE main.orders SET order_status='COMPLETED' WHERE payment_id="+ req.query.payment_id +";", function(err, result, fields) {
+                    if (err) console.log(err);
                 });
             });
         } else {
